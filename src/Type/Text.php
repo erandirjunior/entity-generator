@@ -2,7 +2,7 @@
 
 namespace EntityGenerator\Type;
 
-class Text implements Type
+class Text extends Field implements Type
 {
     private $type;
 
@@ -20,42 +20,8 @@ class Text implements Type
         return $this->type->handle($field);
     }
 
-    private function mountAttribute($field)
+    public function mountAttribute($field)
     {
-        return $this->createAttribute($field);
+        return $this->createAttribute($field, 'string');
     }
-
-    private function createAttribute($field)
-    {
-        $nullable = $field === 'n' ? 'false' : 'true';
-
-        $attributeName = $this->convertUnderscoreToCamelCase($field['name']);
-
-        $annotation = '
-        /**
-         * @ORM\Column(name="'.$field['name'].'", type="'.$field['type'].'", nullable='.$nullable.')
-         */
-         private $'.$attributeName.';
-         ';
-
-        return $annotation;
-    }
-    public function convertUnderscoreToCamelCase($attribute)
-    {
-        $atrributeArray = explode('_', $attribute);
-        $pieces = [];
-
-        foreach ($atrributeArray as $k => $v) {
-            if ($k === 0) {
-                $pieces[] = $v;
-
-                continue;
-            }
-
-            $pieces[] = ucfirst($v);
-        }
-
-        return $pieces ? implode('', $pieces) : $attribute;
-    }
-
 }
