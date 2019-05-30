@@ -2,26 +2,21 @@
 
 namespace EntityGenerator\Type;
 
-class Datetime implements Type
+class Datetime extends DataType implements Type
 {
-    private $type;
+    private $dataType;
 
     public function next(Type $type)
     {
-        $this->type = $type;
+        $this->dataType = $type;
     }
 
     public function handle(array $field)
     {
-        if ($field['type'] === 'datetime' || $field['type'] === 'date') {
-            return $this->mountAttribute($field);
+        if ($field['type'] === 'datetime') {
+            return $this->create($field, 'string');
         }
 
-        return $this->type->handle($field);
-    }
-
-    private function mountAttribute($field)
-    {
-
+        return $this->dataType->handle($field);
     }
 }

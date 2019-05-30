@@ -2,9 +2,10 @@
 
 namespace EntityGenerator;
 
+use EntityGenerator\Type\Date;
 use EntityGenerator\Type\Datetime;
 use EntityGenerator\Type\Integer;
-use EntityGenerator\Type\Number;
+use EntityGenerator\Type\Decimal;
 use EntityGenerator\Type\Text;
 use EntityGenerator\Type\Varchar;
 use Symfony\Component\Console\Question\Question;
@@ -22,19 +23,21 @@ class QuestionEntity
 
         $this->askQuestion($input, $output, $helper);
 
-        $question           = new Question($namespaceQuestion, null);
-        $namespace          = $helper->ask($input, $output, $question);
+        //$question           = new Question($namespaceQuestion, null);
+        //$namespace          = $helper->ask($input, $output, $question);
 
-        $varchar = new Varchar();
-        $integer = new Integer();
-        $datetime = new Datetime();
-        $text = new Text();
-        $number = new Number();
+        $varchar    = new Varchar();
+        $integer    = new Integer();
+        $datetime   = new Datetime();
+        $date       = new Date();
+        $text       = new Text();
+        $decimal    = new Decimal();
 
         $varchar->next($integer);
         $integer->next($datetime);
-        $datetime->next($text);
-        $text->next($number);
+        $datetime->next($date);
+        $date->next($text);
+        $text->next($decimal);
 
         foreach ($this->fields as $field) {
             //$varchar->handle($field);
@@ -77,10 +80,6 @@ class QuestionEntity
                     'question' => 'What is field name? ',
                     'default' => '',
                 ],
-                'length' => [
-                    'question' => 'What is field length? [11] ',
-                    'default' => 11,
-                ],
                 'nullable' => [
                     'question' => 'Is it nullable? [y|n] ',
                     'default' => 'n',
@@ -89,7 +88,7 @@ class QuestionEntity
             'boolean' => [
                 'name' => [
                     'question' => 'What is field name? ',
-                    'default' => '',
+                    'default' => true,
                 ],
                 'nullable' => [
                     'question' => 'Is it nullable? [y|n] ',
@@ -123,11 +122,11 @@ class QuestionEntity
                 ],
                 'precision' => [
                     'question' => 'What is field precision? ',
-                    'default' => 11,
+                    'default' => 10,
                 ],
                 'scale' => [
                     'question' => 'What is it field scale? ',
-                    'default' => 2,
+                    'default' => 0,
                 ],
                 'nullable' => [
                     'question' => 'Is it nullable? [y|n] ',
@@ -135,7 +134,8 @@ class QuestionEntity
                 ]
             ],
         ];
-        $typeFieldQuestion  = 'What is the field type? [varchar, text, integer, number, boolean, datetime, date, decimal] ';
+        $typeFieldQuestion  = "What is the field type? ";
+        $typeFieldQuestion .= " [varchar, text, integer, decimal, boolean, datetime, date] ";
 
         do {
             $question   = new Question($typeFieldQuestion, null);

@@ -2,26 +2,22 @@
 
 namespace EntityGenerator\Type;
 
-class Text extends Field implements Type
+class Text extends DataType implements Type
 {
-    private $type;
+    private $dataType;
 
     public function next(Type $type)
     {
-        $this->type = $type;
+        $this->dataType = $type;
     }
 
     public function handle(array $field)
     {
         if ($field['type'] === 'text') {
-            return $this->mountAttribute($field);
+            $field['length'] = 0;
+            return $this->create($field, 'text');
         }
 
-        return $this->type->handle($field);
-    }
-
-    public function mountAttribute($field)
-    {
-        return $this->createAttribute($field, 'string');
+        return $this->dataType->handle($field);
     }
 }

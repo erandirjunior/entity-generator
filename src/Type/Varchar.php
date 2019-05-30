@@ -2,26 +2,21 @@
 
 namespace EntityGenerator\Type;
 
-class Varchar implements Type
+class Varchar extends DataType implements Type
 {
-    private $type;
+    private $dataType;
 
     public function next(Type $type)
     {
-        $this->type = $type;
+        $this->dataType = $type;
     }
 
     public function handle(array $field)
     {
         if ($field['type'] === 'varchar') {
-            return $this->mountAttribute($field);
+            return $this->create($field, 'string');
         }
 
-        return $this->type->handle($field);
-    }
-
-    private function mountAttribute($field)
-    {
-        var_dump($field);
+        return $this->dataType->handle($field);
     }
 }

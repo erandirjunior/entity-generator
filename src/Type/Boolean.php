@@ -2,7 +2,7 @@
 
 namespace EntityGenerator\Type;
 
-class Integer extends DataType implements Type
+class Boolean extends DataType implements Type
 {
     private $dataType;
 
@@ -13,7 +13,7 @@ class Integer extends DataType implements Type
 
     public function handle(array $field)
     {
-        if ($field['type'] === 'integer') {
+        if ($field['type'] === 'boolean') {
             return $this->create($field, 'string');
         }
 
