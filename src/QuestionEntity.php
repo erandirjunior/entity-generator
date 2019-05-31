@@ -4,6 +4,7 @@ namespace EntityGenerator;
 
 use EntityGenerator\Type\Date;
 use EntityGenerator\Type\Datetime;
+use EntityGenerator\Type\Id;
 use EntityGenerator\Type\Integer;
 use EntityGenerator\Type\Decimal;
 use EntityGenerator\Type\Text;
@@ -14,24 +15,104 @@ class QuestionEntity
 {
     private $fields = [];
 
-    public function questions($input, $output, $helper)
+    private $content = [];
+
+    private $namespace = '';
+
+    private $tableName = '';
+
+    private $helper = '';
+
+    private $input = '';
+
+    private $output = '';
+
+    public function __construct()
+    {
+        $this->fields       = [];
+        $this->namespace    = '';
+        $this->tableName    = '';
+        $this->content      = [
+            'attributes' => '',
+            'methods'    => '',
+        ];
+    }
+
+    public function getClassName()
+    {
+        $namespaceArray = explode('\\', $this->namespace);
+
+        return array_pop($namespaceArray);
+    }
+
+    public function getContent()
+    {
+        return implode('', $this->content);
+    }
+
+    protected function setContentAttribute($attibute)
+    {
+        $this->content['attributes'] .= $attibute;
+    }
+
+    protected function setContentMethods($methods)
+    {
+        $this->content['methods'] .= $methods;
+    }
+
+    public function getTableName()
+    {
+        return $this->tableName;
+    }
+
+    private function setTableName()
     {
         $tableNameQuestion  = 'What is the name of table? (e.g. tb_contract) ';
-        $namespaceQuestion  = 'What is the namespace class? ';
         $question           = new Question($tableNameQuestion, null);
-        $name               = $helper->ask($input, $output, $question);
 
-        $this->askQuestion($input, $output, $helper);
+        do {
+            $this->tableName  = $this->helper->ask($this->input, $this->output, $question);
+        } while (!$this->tableName);
+    }
 
-        //$question           = new Question($namespaceQuestion, null);
-        //$namespace          = $helper->ask($input, $output, $question);
+    public function getNamespace()
+    {
+        return $this->namespace;
+    }
 
-        $varchar    = new Varchar();
-        $integer    = new Integer();
-        $datetime   = new Datetime();
-        $date       = new Date();
-        $text       = new Text();
-        $decimal    = new Decimal();
+    private function setNamespace()
+    {
+        $namespaceQuestion  = 'What is the namespace class? ';
+        $question           = new Question($namespaceQuestion, null);
+
+        do {
+            $this->namespace = $this->helper->ask($this->input, $this->output, $question);
+        } while (!$this->namespace);
+    }
+
+    public function questions($input, $output, $helper)
+    {
+        $this->input    = $input;
+        $this->output   = $output;
+        $this->helper   = $helper;
+
+        $this->setTableName();
+        $this->askQuestion();
+        $this->setNamespace();
+
+        $className = $this->getClassName();
+
+        $id         = new Id($className);
+        $varchar    = new Varchar($className);
+        $integer    = new Integer($className);
+        $datetime   = new Datetime($className);
+        $date       = new Date($className);
+        $text       = new Text($className);
+        $decimal    = new Decimal($className);
+        $contentId  = $id->createId();
+
+        $this->setContentAttribute($contentId['attribute']);
+        $this->setContentMethods($contentId['methods']);
 
         $varchar->next($integer);
         $integer->next($datetime);
@@ -40,13 +121,14 @@ class QuestionEntity
         $text->next($decimal);
 
         foreach ($this->fields as $field) {
-            //$varchar->handle($field);
-            var_dump($varchar->handle($field));
-        }
+            $contentField = $varchar->handle($field, $this->getClassName());
 
+            $this->setContentAttribute($contentField['attribute']);
+            $this->setContentMethods($contentField['methods']);
+        }
     }
 
-    private function askQuestion($input, $output, $helper)
+    private function askQuestion()
     {
         $otherFieldQuestion = 'Do you wish add other field? [y|n] ';
         $number             = 1;
@@ -139,22 +221,30 @@ class QuestionEntity
 
         do {
             $question   = new Question($typeFieldQuestion, null);
-            $type       = $helper->ask($input, $output, $question);
+            $type       = $this->helper->ask($this->input, $this->output, $question);
             $type       = strtolower($type);
 
             if (!empty($typeFieldQuestions[$type])) {
-                foreach ($typeFieldQuestions[$type] as $key => $questions) {
-                    $question = new Question($questions['question'], $questions['default']);
-                    $this->fields[$number][$key] = $helper->ask($input, $output, $question);
-                    $this->fields[$number]['type'] = $type;
-                }
+                $this->askQuestionFromDataType($typeFieldQuestions[$type], $type, $number);
             }
 
             $question = new Question($otherFieldQuestion, null);
-            $continue = $helper->ask($input, $output, $question);
+            $continue = $this->helper->ask($this->input, $this->output, $question);
 
             $number++;
 
         } while ($continue === 'Y' || $continue === 'y');
+    }
+
+    private function askQuestionFromDataType($questions, $type, $number)
+    {
+        foreach ($questions as $key => $question) {
+            $object = new Question($question['question'], $question['default']);
+
+            $this->fields[$number][$key] = $this
+                                            ->helper
+                                            ->ask($this->input, $this->output, $object);
+            $this->fields[$number]['type'] = $type;
+        }
     }
 }

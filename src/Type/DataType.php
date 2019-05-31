@@ -8,54 +8,74 @@ abstract class DataType
 
     protected $nullableParameter;
 
-    protected $name;
+    protected $columnName;
 
     protected $options;
 
-    protected $type;
+    protected $columnType;
 
-    protected $length;
+    protected $columnLength;
 
     protected $attibuteName;
 
+    protected $annotationTypeParameter;
+
+    protected $className;
+
+    public function __construct($className)
+    {
+        $this->nullable                 = 'nullable=false';
+        $this->nullableParameter        = '';
+        $this->columnName               = '';
+        $this->options                  = '';
+        $this->columnType               = '';
+        $this->columnLength             = '';
+        $this->attibuteName             = '';
+        $this->annotationTypeParameter  = [];
+        $this->className                = $className;
+    }
+
     protected function setNullable($nullable)
     {
-        $this->nullable             = 'nullable=false';
-        $this->nullableParameter    = '';
-
         if ($nullable === 'y') {
             $this->nullable = 'nullable=true';
             $this->nullableParameter = ' = null';
+            $this->annotationTypeParameter[] = 'null';
         }
     }
 
-    protected function setName($name)
+    protected function setColumnName($name)
     {
-        $this->name = "name=\"{$name}\"";
+        $this->columnName = "name=\"{$name}\"";
     }
 
-    protected function setType($type)
+    protected function setColumnType($columnType)
     {
-        $this->type = "type=\"{$type}\"";
+        $this->columnType = "type=\"{$columnType}\"";
     }
 
-    protected function setLength($field)
+    protected function setColumnLength($field)
     {
         if (!empty($field['length'])) {
-            $this->length = "length={$field['length']}, ";
+            $this->columnLength = "length={$field['length']}, ";
         }
     }
 
-    protected function create($field, $type)
+    protected function setAnnotationTypeParameter($type)
+    {
+        $this->annotationTypeParameter[] = $type;
+    }
+
+    protected function create($field)
     {
         $this->convertUnderscoreToCamelCase($field['name']);
         $this->setNullable($field['nullable']);
-        $this->setName($field['name']);
-        $this->setType($field['type']);
-        $this->setLength($field);
+        $this->setColumnName($field['name']);
+        $this->setColumnType($field['type']);
+        $this->setColumnLength($field);
 
         $attribute  = $this->createAttribute();
-        $methods    = $this->createMethods($type);
+        $methods    = $this->createMethods();
 
         return [
             'attribute' => $attribute,
@@ -63,43 +83,55 @@ abstract class DataType
         ];
     }
 
-    protected function createMethods($type)
+    protected function createAttribute()
+    {
+        return '
+        
+        /**
+         * @var '.implode('|', $this->annotationTypeParameter).'
+         *
+         * @ORM\Column('.$this->columnName.', '.$this->columnType.', '.$this->columnLength.$this->nullable.')
+         */
+         private $'.$this->attibuteName.';';
+    }
+
+    protected function createMethods()
+    {
+        return $this->createSetMethod().$this->createGetMethod();
+    }
+
+    protected function createSetMethod()
     {
         return '
         
         /**
          * Set '.$this->attibuteName.'.
          *
-         * @return '.$type.'
+         * @param '.implode('|', $this->annotationTypeParameter).' $'.$this->attibuteName.'
+         *
+         * @return '.$this->className.'
          */
-        public function set'.ucfirst($this->attibuteName).'('.$this->attibuteName.$this->nullableParameter.')
+        public function set'.ucfirst($this->attibuteName).'($'.$this->attibuteName.$this->nullableParameter.')
         {
-            $this->'.$this->attibuteName.' = '.$this->attibuteName.';
+            $this->'.$this->attibuteName.' = $'.$this->attibuteName.';
     
             return $this;
-        }
-    
+        }';
+    }
+
+    protected function createGetMethod()
+    {
+        return '
+        
         /**
          * Get '.$this->attibuteName.'.
          *
-         * @return string
+         * @return '.implode('|', $this->annotationTypeParameter).' $'.$this->attibuteName.'
          */
         public function get'.ucfirst($this->attibuteName).'()
         {
             return $this->'.$this->attibuteName.';
         }';
-    }
-
-    protected function createAttribute()
-    {
-        return '
-        
-        /**
-         * @var 
-         *
-         * @ORM\Column('.$this->name.', '.$this->type.', '.$this->length.$this->nullable.')
-         */
-         private $'.$this->attibuteName.';';
     }
 
     protected function convertUnderscoreToCamelCase($attribute)

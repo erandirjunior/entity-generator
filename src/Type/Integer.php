@@ -14,7 +14,9 @@ class Integer extends DataType implements Type
     public function handle(array $field)
     {
         if ($field['type'] === 'integer') {
-            return $this->create($field, 'string');
+            $this->setAnnotationTypeParameter('int');
+
+            return $this->create($field);
         }
 
         return $this->dataType->handle($field);

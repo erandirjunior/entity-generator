@@ -14,7 +14,9 @@ class Boolean extends DataType implements Type
     public function handle(array $field)
     {
         if ($field['type'] === 'boolean') {
-            return $this->create($field, 'string');
+            $this->setAnnotationTypeParameter('boolean');
+
+            return $this->create($field);
         }
 
         return $this->dataType->handle($field);

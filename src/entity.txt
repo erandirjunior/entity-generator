@@ -1,0 +1,16 @@
+<?php
+
+namespace @Namespace@;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @CLASS_NAME@
+ *
+ * @ORM\Table(name="@TABLE_NAME@")
+ * @ORM\Entity
+ */
+class @CLASS_NAME@
+{
+    @CONTENT@
+}

@@ -14,7 +14,8 @@ class Datetime extends DataType implements Type
     public function handle(array $field)
     {
         if ($field['type'] === 'datetime') {
-            return $this->create($field, 'string');
+            $this->setAnnotationTypeParameter('\Datetime');
+            return $this->create($field);
         }
 
         return $this->dataType->handle($field);

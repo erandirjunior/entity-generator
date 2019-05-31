@@ -15,7 +15,9 @@ class Text extends DataType implements Type
     {
         if ($field['type'] === 'text') {
             $field['length'] = 0;
-            return $this->create($field, 'text');
+            $this->setAnnotationTypeParameter('string');
+
+            return $this->create($field);
         }
 
         return $this->dataType->handle($field);

@@ -14,7 +14,10 @@ class Varchar extends DataType implements Type
     public function handle(array $field)
     {
         if ($field['type'] === 'varchar') {
-            return $this->create($field, 'string');
+            $this->setAnnotationTypeParameter('string');
+            $field['type'] = 'string';
+
+            return $this->create($field);
         }
 
         return $this->dataType->handle($field);
