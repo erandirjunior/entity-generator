@@ -1,6 +1,6 @@
 {
     "name": "erandir/entity-generator",
-    "description": "Route library for php",
+    "description": "Generate Doctrine Entities by CLI",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -13,11 +13,6 @@
     "autoload": {
         "psr-4": {
             "EntityGenerator\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "EntityGenerator\\Test\\": "tests/"
         }
     },
     "require": {
