@@ -1,10 +1,18 @@
 <?php
 
-namespace EntityGenerator\Type;
+namespace EntityGenerator\DataType;
 
 class Id extends DataType
 {
-    public function createId()
+	private $dataBaseType;
+
+	public function __construct($className, $dataBaseType)
+	{
+		parent::__construct($className);
+		$this->dataBaseType = $dataBaseType;
+	}
+
+	public function createId()
     {
         $this->setColumnType('integer');
         $this->setColumnName('id');
@@ -27,7 +35,7 @@ class Id extends DataType
          *
          * @ORM\Column('.$this->columnName.', '.$this->columnType.', '.$this->nullable.')
          * @ORM\Id
-         * @ORM\GeneratedValue(strategy="")
+         * @ORM\GeneratedValue(strategy="'.$this->dataBaseType.'")
          */
          private $'.$this->attibuteName.';';
     }
