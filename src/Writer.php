@@ -28,6 +28,8 @@ class Writer
     {
         $content = $this->replaceContent();
 
+//        $array = explode('/', $this->path);
+
         $newFile = $this->path.$this->className.'.php';
         $file = fopen($newFile, "wb");
         fwrite($file, $content);

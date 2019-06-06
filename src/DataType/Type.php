@@ -1,6 +1,6 @@
 <?php
 
-namespace EntityGenerator\Type;
+namespace EntityGenerator\DataType;
 
 
 interface Type

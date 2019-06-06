@@ -9,11 +9,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EntityGenerator extends Command
 {
-    protected $path;
+    protected $dataBaseType;
 
-    public function __construct($path = null)
+    public function __construct(string $dataBaseType)
     {
-        $this->path = $path;
+        $this->dataBaseType = $dataBaseType;
         parent::__construct(null);
     }
 
@@ -25,11 +25,11 @@ class EntityGenerator extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $questionEntity = new QuestionEntity();
+        $questionEntity = new QuestionEntity($this->dataBaseType);
 
         $questionEntity->questions($input, $output, $this->helper($output));
 
-        $writer = new Writer($questionEntity, $this->path);
+        $writer = new Writer($questionEntity, $questionEntity->getPath());
 
         $writer->writeFile();
     }

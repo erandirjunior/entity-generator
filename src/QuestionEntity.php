@@ -2,13 +2,13 @@
 
 namespace EntityGenerator;
 
-use EntityGenerator\Type\Date;
-use EntityGenerator\Type\Datetime;
-use EntityGenerator\Type\Id;
-use EntityGenerator\Type\Integer;
-use EntityGenerator\Type\Decimal;
-use EntityGenerator\Type\Text;
-use EntityGenerator\Type\Varchar;
+use EntityGenerator\DataType\Date;
+use EntityGenerator\DataType\Datetime;
+use EntityGenerator\DataType\Id;
+use EntityGenerator\DataType\Integer;
+use EntityGenerator\DataType\Decimal;
+use EntityGenerator\DataType\Text;
+use EntityGenerator\DataType\Varchar;
 use Symfony\Component\Console\Question\Question;
 
 class QuestionEntity
@@ -19,19 +19,24 @@ class QuestionEntity
 
     private $namespace = '';
 
-    private $tableName = '';
+    private $tableName;
 
-    private $helper = '';
+    private $helper;
 
-    private $input = '';
+    private $input;
 
-    private $output = '';
+    private $output;
 
-    public function __construct()
+    private $dataBaseType;
+
+    private $path;
+
+    public function __construct($dataBaseType)
     {
         $this->fields       = [];
         $this->namespace    = '';
         $this->tableName    = '';
+        $this->dataBaseType = $dataBaseType;
         $this->content      = [
             'attributes' => '',
             'methods'    => '',
@@ -80,6 +85,11 @@ class QuestionEntity
         return $this->namespace;
     }
 
+    public function getPath()
+    {
+        return $this->path;
+    }
+
     private function setNamespace()
     {
         $namespaceQuestion  = 'What is the namespace class? ';
@@ -98,11 +108,12 @@ class QuestionEntity
 
         $this->setTableName();
         $this->askQuestion();
+        $this->askQuestionPath();
         $this->setNamespace();
 
         $className = $this->getClassName();
 
-        $id         = new Id($className);
+        $id         = new Id($className, $this->dataBaseType);
         $varchar    = new Varchar($className);
         $integer    = new Integer($className);
         $datetime   = new Datetime($className);
@@ -247,4 +258,14 @@ class QuestionEntity
             $this->fields[$number]['type'] = $type;
         }
     }
+
+    private function askQuestionPath()
+	{
+		do {
+			$entityPathQuestion = "Where save the entity? ";
+			$question   		= new Question($entityPathQuestion, null);
+			$this->path       	= $this->helper->ask($this->input, $this->output, $question);
+
+		} while (!$this->path);
+	}
 }

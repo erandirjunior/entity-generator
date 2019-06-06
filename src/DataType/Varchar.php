@@ -1,6 +1,6 @@
 <?php
 
-namespace EntityGenerator\Type;
+namespace EntityGenerator\DataType;
 
 class Varchar extends DataType implements Type
 {

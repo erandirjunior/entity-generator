@@ -1,6 +1,6 @@
 <?php
 
-namespace EntityGenerator\Type;
+namespace EntityGenerator\DataType;
 
 class Boolean extends DataType implements Type
 {
